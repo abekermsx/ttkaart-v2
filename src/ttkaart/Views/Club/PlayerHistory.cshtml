@@ -1,0 +1,21 @@
+﻿@model ttkaart.ViewModels.ClubPlayerHistoryViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Service
+@using ttkaart.Models
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht spelers bij " + Model.club.clubName + ".";
+    ViewBag.Description = "Overzicht van alle spelers van die bij " + Model.club.clubName + "hebben gespeeld.";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+}
+
+<h1>
+Overzicht spelers
+@Html.RouteLink(Model.club.clubName,
+                "VerenigingenDetails",
+                new RouteValueDictionary { { "id", Model.club.id }, { "name", Model.club.clubName.ToUrlFriendlyString() } })
+</h1>
+
+@Html.Partial("~/Views/Shared/_PlayersHistory.cshtml", Model)

@@ -1,0 +1,118 @@
+﻿@model ttkaart.ViewModels.PouleViewModel 
+
+@using ttkaart.Helpers
+@using ttkaart.Service;
+@using ttkaart.Models;
+
+@{
+    ViewBag.Title = "TTKAART.NL - Resultaten spelers " + Model.playerResults[0].className + " " + Model.playerResults[0].pouleName +
+                            " (" + (Model.playerResults[0].pouleCategory == 1 ? "Senioren" : "Junioren") + ")" +
+                            ", " + (Model.playerResults[0].seasonPeriod == 1 ? "Voorjaar" : "Najaar") + " " + Model.playerResults[0].seasonYear +
+                            ", " + (Model.playerResults[0].regionName.Contains("Landelijk") ? "" : "Afdeling ") + Model.playerResults[0].regionName; 
+                            
+    ViewBag.Description = "Overzicht van alle spelers, resultaten, percentages, ratings, licenties in de competitie " +
+                            Model.playerResults[0].className + " " + Model.playerResults[0].pouleName + 
+                            " (" + (Model.playerResults[0].pouleCategory==1 ? "senioren" : "junioren") +")" + 
+                            ", " + (Model.playerResults[0].seasonPeriod==1 ? "voorjaar" : "najaar") + " " + Model.playerResults[0].seasonYear +
+                            ", " + (Model.playerResults[0].regionName.Contains("Landelijk") ? "" : "Afdeling ") + Model.playerResults[0].regionName + ".";
+
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+}
+
+<h1>Resultaten
+@Model.playerResults[0].className
+@Model.playerResults[0].pouleName -
+
+@{
+    string competitionName = (Model.playerResults[0].seasonPeriod==1 ? "Voorjaar" : "Najaar") + " " + Model.playerResults[0].seasonYear + " - " + 
+                              (Model.playerResults[0].pouleCategory==1 ? "Senioren" : "Junioren") + " - " +
+                              (Model.playerResults[0].regionName.Contains("Landelijk") ? "" : "Afdeling ") + " " + Model.playerResults[0].regionName;
+
+    RouteValueDictionary competitionRouteValues = new RouteValueDictionary();
+    competitionRouteValues.Add("season", Model.playerResults[0].seasonId);
+    competitionRouteValues.Add("category", Model.playerResults[0].pouleCategory);
+    competitionRouteValues.Add("region", Model.playerResults[0].regionId);
+    competitionRouteValues.Add("seasonName", (Model.playerResults[0].seasonPeriod == 1 ? "Voorjaar" : "Najaar") + "-" + Model.playerResults[0].seasonYear);
+    competitionRouteValues.Add("categoryName", (Model.playerResults[0].pouleCategory == 1 ? "Senioren" : "Junioren"));
+    competitionRouteValues.Add("regionName", Model.playerResults[0].regionName.ToUrlFriendlyString());
+
+    @Html.RouteLink(competitionName, "CompetitiesOverzicht", competitionRouteValues);
+}
+</h1>
+
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.PoulePlayerHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var result in Model.playerResults)
+    {
+        string playerName = result.playerName.ToUrlFriendlyString();
+        
+        RouteValueDictionary routeValues = new RouteValueDictionary{ {"id", result.playerNr}, {"name", playerName} };
+        
+        @:<tr>
+        <td>@Html.RouteLink(result.playerNr, "SpelersDetails", routeValues)</td>
+        <td>@Html.RouteLink(result.playerName, "SpelersDetails", routeValues)</td>
+    
+        <td>@Html.RouteLink(result.clubName + " " + result.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", result.teamId }, {"name", (result.clubName + " " + result.teamNumber).ToUrlFriendlyString() }})</td>
+    
+        <td>@result.setsPlayed</td>
+        <td>@result.setsWon</td>
+        <td>@result.percentage</td>
+        <td>@(result.rating == -9999 ? "-" : result.baseRating.ToString())</td>
+        <td>@(result.rating == -9999 ? "-" : result.rating.ToString())</td>
+        <td>@result.license</td>
+        @:</tr>
+    }
+}
+    </tbody>
+</table>
+<p>
+* ratings van voorjaar 2006 en eerder zijn gebaseerd op de basisratings van najaar 2006<br />
+** rating op basis competitieresultaat<br />
+*** licentie op basis van seizoensrating (kan afwijken van daadwerkelijke licentie)<br />
+</p>
+
+@if (!Model.teamResults[0].averageRating.Equals("-9999"))
+{
+<h1>Teamratings</h1>
+
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.PouleTeamHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var result in Model.teamResults)
+    {
+        @:<tr>
+        <td>
+            @Html.RouteLink(result.clubName + " " + result.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", result.teamId }, {"name", (result.clubName + " " + result.teamNumber).ToUrlFriendlyString() }})
+        </td>
+        <td>@(result.averageRating == -9999 ? "-" : result.averageRating.ToString())</td>
+        <td>
+        @{
+        bool first = true;
+        foreach (var member in result.teamMembers)
+        {
+            if (!first)
+            {
+@:,
+            }
+            first = false;
+            @Html.RouteLink(member.playerName, "SpelersDetails", new RouteValueDictionary { { "id", member.playerNumber }, {"name", member.playerName.ToUrlFriendlyString() }})
+        }
+        }     
+        </td>
+        @:</tr>
+    }
+}
+    </tbody>
+</table>
+<p>
+* Teamrating op basis van gewogen gemiddelde rating spelers in team
+</p>
+}

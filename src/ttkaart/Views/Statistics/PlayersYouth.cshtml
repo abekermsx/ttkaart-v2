@@ -1,0 +1,28 @@
+﻿@model ttkaart.ViewModels.PlayerStatisticsViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Service
+@using ttkaart.Models
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht aantal juniorenspelers per afdeling per seizoen";
+    ViewBag.Description = "Overzicht aantal juniorenspelers per afdeling per seizoen";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "all";
+}
+
+<h1>Statistieken</h1>
+
+<p>
+    Bekijk statistieken van:
+    @Html.RouteLink("Spelers", "StatistiekenSpelers")
+    @Html.RouteLink("Junioren", "StatistiekenSpelersJunioren", null, new { style = "font-weight:bold;" })
+    @Html.RouteLink("Senioren", "StatistiekenSpelersSenioren")
+    @Html.RouteLink("Verenigingen", "StatistiekenVerenigingen")
+</p>
+
+<br />
+
+<h2>Overzicht aantal juniorenspelers per afdeling per seizoen</h2>
+
+@{ Html.RenderPartial("~/Views/Shared/_PlayersStats.cshtml", Model); }

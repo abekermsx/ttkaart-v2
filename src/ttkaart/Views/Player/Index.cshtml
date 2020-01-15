@@ -1,0 +1,13 @@
+﻿@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht spelers";
+    ViewBag.Description = "Zoek spelers op die in het systeem van ttkaart.nl geregistreerd zijn.";
+    ViewBag.HasSideBar = true;
+    ViewBag.Robots = "nofollow";
+}
+
+<h1>Overzicht spelers</h1>
+<p>
+Overzicht spelers beginnend met: @Html.AlphabeticalSelect("SpelersOverzicht", ' ')
+</p>

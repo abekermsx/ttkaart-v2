@@ -1,0 +1,58 @@
+﻿@model ttkaart.ViewModels.PlayerOverviewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+@using ttkaart.ViewModels
+
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.PlayerHeadings, Model.sortField, Model.sortDir)
+   <tbody>
+
+@{
+    IList<PlayerListViewModel> players;
+
+    if (Model.page == -1)
+    {
+        players = Model.players;
+    }
+    else
+    {
+        players = (IList<PlayerListViewModel>)Model.players.ToPagedList(Model.page - 1, 100);
+    }
+    
+    foreach (var player in players)
+    {
+        string playerName = player.playerName.ToUrlFriendlyString();
+        RouteValueDictionary routeValues = new RouteValueDictionary { { "id", player.playerNr }, { "name", playerName } };
+        @:<tr>
+        <td>@Html.RouteLink(player.playerNr, "SpelersDetails", routeValues)</td>
+        <td>@Html.RouteLink(player.playerName, "SpelersDetails", routeValues)</td>
+    
+        @:<td>
+        bool first = true;
+        foreach (var club in player.clubs)
+        {
+            if (!first)
+            {
+@:,
+            }
+            first = false;
+            
+            @Html.RouteLink(club.clubName, "VerenigingenDetails", new RouteValueDictionary { { "id", club.id }, { "name", club.clubName.ToUrlFriendlyString() } })
+        }
+        @:</td>
+        
+        <td>
+        @if (player.wikiActive)
+        {
+            <a href="http://nl.wikipedia.org/wiki/@player.wikiUrl" target="_blank" alt="Wikipediapagina van @player.wikiUrl">
+                <img src="~/Content/images/icon_wikipedia.png" title="Wikipediapagina van @player.wikiUrl" />
+            </a>
+        }
+        </td>
+        
+        @:</tr>        
+    }   
+}
+    </tbody>
+</table>

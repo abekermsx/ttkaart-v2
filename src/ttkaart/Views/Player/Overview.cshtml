@@ -1,0 +1,35 @@
+﻿@model ttkaart.ViewModels.PlayerOverviewModel
+
+@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht spelers beginnend met " + Model.c;
+    ViewBag.Description = "Zoek spelers op die in het systeem van ttkaart.nl geregistreerd zijn.";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+    
+    RouteValueDictionary routeValues = new RouteValueDictionary();
+    routeValues.Add( "SorteerOp", Model.sortField);
+    routeValues.Add( "Richting", Model.sortDir);
+}
+
+<h1>Overzicht spelers</h1>
+<p>
+Overzicht spelers beginnend met: @Html.AlphabeticalSelect("SpelersOverzicht", Model.c)
+</p>
+
+<br />
+
+<h2>Spelers beginnend met @Model.c</h2>
+
+@if (Model.players.Count > 100)
+{
+    <p>@Html.NumericalSelect("SpelersOverzicht", (Model.players.Count + 99) / 100, Model.page, routeValues)</p>
+}
+
+@{ Html.RenderPartial("~/Views/Shared/_Players.cshtml", Model); }
+
+@if (Model.players.Count > 100)
+{
+<p>@Html.NumericalSelect("SpelersOverzicht", (Model.players.Count + 99) / 100, Model.page, routeValues)</p>
+}

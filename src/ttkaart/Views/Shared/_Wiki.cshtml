@@ -1,0 +1,14 @@
+﻿@model ttkaart.ViewModels.WikiViewModel
+
+<h1>Wiki @Model.wikiUrl.Replace("_"," ")</h1>
+<article class="wiki">
+	@System.Web.Mvc.MvcHtmlString.Create(Model.wikiText)
+	<hr />
+	<p>
+	Lees het originele artikel op <a href="http://nl.wikipedia.org/wiki/@Model.wikiUrl" target="_blank">@Model.wikiUrl</a><br /><br />
+	<small>
+	De tekst is beschikbaar onder de licentie <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.nl" target="_blank">Creative Commons Naamsvermelding/Gelijk delen</a>,
+	 er kunnen aanvullende voorwaarden van toepassing zijn. Zie de <a href="http://wikimediafoundation.org/wiki/Gebruiksvoorwaarden" target="_blank">gebruiksvoorwaarden</a> voor meer informatie.
+	</small>
+	</p>
+</article>

@@ -1,0 +1,56 @@
+﻿@model List<ttkaart.ViewModels.ClubListViewModel>
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+
+<table class="data clubs">
+    @Html.GenerateTableHeader(TableModels.ClubHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var club in Model)
+    {
+    <tr>
+        <td>
+            @Html.RouteLink(club.clubName, "VerenigingenDetails", new RouteValueDictionary { { "id", club.id }, { "name", club.clubName.ToUrlFriendlyString() } })
+        </td>
+        <td>
+            @if (!String.IsNullOrEmpty(club.favicon))
+            {           
+                <a href="@club.website" target="_blank" title="Website van @club.clubName"><img src="~/Content/images/favicon/@club.favicon" width="16px" height="16px" style="vertical-align:middle;" /></a>
+            }
+        </td>
+        <td>
+            @if (!String.IsNullOrEmpty(club.website) && club.website.StartsWith("http") )
+            {
+                <a href="@club.website" target="_blank" title="Website van @club.clubName">@club.website</a>
+            }
+         </td>
+        <td>
+            @if (!String.IsNullOrEmpty(club.twitter))
+            {
+                <a href="@club.twitter" target="_blank" title="Twitteraccount van @club.clubName">
+                    <img src="~/Content/images/icon_twitter.png" alt="Twitteraccount van @club.clubName" style="vertical-align:middle;" />
+                </a>
+            }
+         </td>
+        <td>
+            @if (!String.IsNullOrEmpty(club.facebook))
+            {
+                <a href="@club.facebook" target="_blank" title="Facebookpagina van @club.clubName">
+                    <img src="~/Content/images/icon_facebook.png" alt="Facebookpagina van @club.clubName" style="vertical-align:middle;" />
+                </a>
+            }
+        </td>
+        <td>
+            @if (!String.IsNullOrEmpty(club.wikiUrl))
+            {
+                <a href="http://nl.wikipedia.org/wiki/@club.wikiUrl" target="_blank" title="Wikipediapagina van @club.clubName">
+                    <img src="~/Content/images/icon_wikipedia.png" alt="Wikipediapagina van @club.clubName" style="vertical-align:middle;" />
+                </a>
+            }
+        </td>
+    </tr>        
+    }   
+}
+    </tbody>
+</table>

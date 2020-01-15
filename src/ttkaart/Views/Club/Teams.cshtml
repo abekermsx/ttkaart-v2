@@ -1,0 +1,65 @@
+﻿@model ttkaart.ViewModels.ClubSeasonTeamViewModel
+
+@{
+    ViewBag.Title = "TTKAART.NL - Teams " + Model.teamResults[0].clubName + " - " + (Model.teamResults[0].seasonPeriod == 1 ? "Voorjaar" : "Najaar") + " " + Model.teamResults[0].seasonYear;
+    ViewBag.Description = "Overzicht van de samenstellingen van teams van " + Model.teamResults[0].clubName + " die tijdens het seizoen " + (Model.teamResults[0].seasonPeriod == 1 ? "voorjaar" : "najaar") + " " + Model.teamResults[0].seasonYear + " in de competitie ingeschreven stonden.";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+}
+
+@using ttkaart.Helpers
+@using ttkaart.Service
+@using ttkaart.Models
+
+<h1>
+Teams 
+@Html.RouteLink(Model.club.clubName, 
+                "VerenigingenDetails", 
+                new RouteValueDictionary { { "id", Model.club.id }, { "name", Model.club.clubName.ToUrlFriendlyString() }} )
+(@(Model.teamResults[0].seasonPeriod == 1 ? "voorjaar" : "najaar") @Model.teamResults[0].seasonYear)
+</h1>
+    
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.ClubTeamHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var result in Model.teamResults)
+    {
+        @:<tr>
+        <td>
+            @Html.RouteLink(result.clubName + " " + result.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", result.teamId }, {"name", (result.clubName + " " + result.teamNumber).ToUrlFriendlyString() }} )
+        </td>    
+    
+        <td>@(result.averageRating == -9999 ? "-" : result.averageRating.ToString())</td>
+
+        <td>@(result.pouleCategory == 1 ? "Senioren" : "Junioren")</td>
+        <td>@result.regionName</td>
+            
+        <td>    
+            @Html.RouteLink((result.className + " - " + result.pouleName).Trim(new char[] { ' ', '-' }),
+                            "PouleDetails",
+                            new RouteValueDictionary { { "id", result.pouleId }, {"name", (result.className + " - " + result.pouleName).ToUrlFriendlyString() } })
+        </td>
+    
+        @:<td>
+        bool first = true;
+        foreach (var member in result.teamMembers)
+        {
+            if (!first)
+            {
+@:,
+            }
+            first = false;
+            @Html.RouteLink(member.playerName, "SpelersDetails", new RouteValueDictionary { { "id", member.playerNumber } , { "name", member.playerName.ToUrlFriendlyString() }})
+        }
+        @:</td>
+        @:</tr>
+    }    
+}
+    </tbody>
+</table>
+<p>
+* Teamrating op basis van gewogen gemiddelde rating spelers in team
+</p>

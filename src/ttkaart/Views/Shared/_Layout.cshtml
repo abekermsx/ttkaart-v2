@@ -1,0 +1,192 @@
+﻿@using ttkaart.Utils;
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="@ViewBag.Description" />
+	<meta name="keywords" content="ttkaart,tafeltennis,statistieken,tafeltennisstatistieken,tafeltennis statistieken,tafeltennis percentages,table tennis,ping pong,table,tennis,percentages,ratings,licenties,nttb,verenigingen,spelers,percentage,rating,licentie,vereniging,club,speler,competitie,statistics,team,poule,stats,teamrating,overzicht,lijst,progressie" />
+	<meta name="robots" content="@ViewBag.Robots"/>
+    <link rel="apple-touch-icon" href="~/Content/images/apple-touch-icon.png">
+    <link rel="shortcut icon" href="~/Content/images/favicon.ico" />
+	<meta property="og:title" content="ttkaart.nl" />
+	<meta property="og:description" content="Dé site met tafeltennisstatistieken, overzicht van persoonlijke resultaten door de jaren heen" />
+	<meta property="og:type" content="sport" />
+	<meta property="og:url" content="http://www.ttkaart.nl/" />
+	<meta property="og:image" content="http://www.ttkaart.nl/Content/images/ttlogo.png" />
+	<meta property="og:site_name" content="ttkaart.nl" />
+	<meta property="fb:admins" content="1282899289" />	
+    <script type="text/javascript" src="~/Content/site.js?t=20150829"></script>
+    @Styles.Render("~/Content/Site.css?t=20150311")
+    <!--[if lt IE 9]>
+    <script type="text/javascript">
+      var e = ("abbr,article,aside,audio,canvas,datalist,details," +
+        "figure,footer,header,hgroup,mark,menu,main,meter,nav,output," +
+        "progress,section,time,video").split(',');
+      for (var i = 0; i < e.length; i++) {
+        document.createElement(e[i]);
+      }
+    </script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <style type="text/css">
+        #menu { height:34px !important; }
+        #menu li { display:inline; float:left; height:30px; }
+    </style>
+    <![endif]-->
+@if ( !Request.IsLocal )
+{
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-319985-6']);
+		_gaq.push(['_setDomainName', '.ttkaart.nl']);
+		_gaq.push(['_gat._forceSSL']);
+		_gaq.push(['_gat._anonymizeIp']);
+		_gaq.push(['_trackPageview']);
+
+		(function () {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+}
+</head>
+<body>
+@if ((Request.Cookies["allowcookies"] != null && "yes".Equals(Request.Cookies["allowcookies"].Value)) || CrawlerDetection.IsCrawler(Request.UserAgent) == true)
+{
+    if (ViewBag.HasSideBar == true)
+    {
+    <div id="fb-root"></div>
+    <script>
+        (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=268184522773";
+        fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+    }
+}
+    <div id="wrapper">
+
+    <header id="header">
+        <span class="title">TTKAART.NL</span>
+        <span class="slogan">tafeltennisresultaten in kaart gebracht</span>
+        <span class="trivia">
+            <b>Statistieken van:</b>
+            <ul>
+                <li>34 seizoenen</li>
+                <li>45354 spelers</li>
+                <li>696 verenigingen</li>
+                <li>115407 teams</li>
+                <li>19738 poules</li>
+            </ul>
+        </span>
+        <span class="social">
+            <a href="https://facebook.com/ttkaart" target="_blank" title="Volg ttkaart.nl op facebook"><img src="~/Content/images/icon_facebook_big.png" alt="Volg ttkaart.nl op facebook" /></a>
+            <a href="https://twitter.com/ttkaart" target="_blank" title="Volg ttkaart.nl op twitter"><img src="~/Content/images/icon_twitter_big.png" alt="Volg ttkaart.nl op twitter" /></a>
+        </span>
+    </header>
+
+    <div style="height:35px"></div>
+
+    <nav id="menu">
+        <ul>
+            <li @(Html.Raw("Home".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Home", "Home")</li>
+            <li @(Html.Raw("Spelers".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Spelers", "Spelers")</li>
+            <li @(Html.Raw("Verenigingen".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Verenigingen", "Verenigingen")</li>
+            <li @(Html.Raw("Competities".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Competities", "Competities")</li>
+            <li @(Html.Raw("Ratings".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Ratings", "RatingsUitleg")</li>
+            <li @(Html.Raw("Statistieken".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Statistieken", "StatistiekenSpelers")</li>
+            <li @(Html.Raw("Wiki".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Wiki", "Wiki")</li>
+            <li @(Html.Raw("Links".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Links", "Links")</li>
+            <li @(Html.Raw("Nieuws".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Nieuws", "Nieuws")</li>
+            <li @(Html.Raw("Contact".Equals(ViewBag.MenuItem) ? "class='active'" : ""))>@Html.RouteLink("Contact", "Contact")</li>
+        </ul>
+        <span id="searchcontainer">
+            @using (Html.BeginForm("", "Zoeken", FormMethod.Get))
+            {
+                @Html.TextBox("text", "Bondsnummer, naam speler of vereniging", new { id = "searchbox", @class = "searchbox empty", onfocus = "setInput(this);", onblur = "releaseInput(this);" })
+                <input type="submit" value="Zoeken" />
+            }
+        </span>
+    </nav>
+
+@if (ViewBag.HasSideBar == null || ViewBag.HasSideBar == false)
+{
+    <main id="fullcontent">
+        @RenderBody()
+        <div class="push"></div>
+    </main>
+}
+
+@if (ViewBag.HasSideBar == true)
+{
+    <main id="content">
+        @RenderBody()
+    </main>
+
+    <section id="sidebar">
+
+        <h2>Social</h2>
+        @if ((Request.Cookies["allowcookies"] != null && "yes".Equals(Request.Cookies["allowcookies"].Value)) || CrawlerDetection.IsCrawler(Request.UserAgent) == true)
+        {
+            <div style="padding:5px 0px;">
+                <div class="fb-like" data-href="http://ttkaart.nl" data-send="true" data-width="300" data-show-faces="true" data-font="verdana"></div>
+            </div>
+        }
+        else
+        {
+            <p class="facebook"><img src="~/Content/images/icon_facebook.png" style="vertical-align:middle;padding-bottom:3px;" /> Facebook-likes zien? Sta eerst @Html.RouteLink("cookies", "Cookies") toe!</p>
+        }
+        <p><a href="https://facebook.com/ttkaart" target="_blank"><img src="~/Content/images/icon_facebook.png" style="vertical-align:middle;padding-bottom:3px;" /> Volg ttkaart.nl op facebook!</a></p>
+        <p><a href="https://twitter.com/ttkaart" target="_blank"><img src="~/Content/images/icon_twitter.png" style="vertical-align:middle;padding-bottom:3px;" /> Volg @@ttkaart op twitter!</a></p>
+        <p>&nbsp;</p>
+        <h2>Zoektips</h2>
+        <p>
+            <ul>
+                <li>Voer je bondsnummer in om direct bij je eigen gegevens uit te komen.</li>
+                <li>Voer bij het zoeken op vereniging waarvan de naam een afkorting is, de naam in zonder punten.</li>
+            </ul>
+        </p>
+        <p>&nbsp;</p>
+        <h2>Laatste nieuws</h2>
+        <p>
+            <table class="news">
+                <tr><td>16/01/2017 :</td><td>ttkaart.nl is gestopt</td></tr>
+                <tr><td>01/05/2016 :</td><td>Persoonlijke resultaten voorjaar 2016 online</td></tr>
+                <tr><td>20/04/2016 :</td><td>Basisratings voorjaar 2016 toegevoegd</td></tr>
+                <tr><td>28/03/2016 :</td><td>Correcte onderverdeling van poules in Holland Noord (regio Noord/Zuid)</td></tr>
+                <tr><td>03/12/2015 :</td><td>Persoonlijke resultaten najaar 2015 online</td></tr>
+                <tr><td>15/07/2015 :</td><td>Basisratings najaar 2004, voorjaar/najaar 2005 en voorjaar 2006 toegevoegd</td></tr>
+                <tr><td>29/04/2015 :</td><td>Persoonlijke resultaten voorjaar 2015 online</td></tr>
+                <tr><td>23/04/2015 :</td><td>Licentie(historie) NAS toegevoegd aan detailpagina spelers</td></tr>
+                <tr><td>11/03/2015 :</td><td>Overzicht teamgenoten toegevoegd aan detailpagina's spelers</td></tr>
+                <tr><td>29/12/2014 :</td><td>Berekeningen teamratings aangepast</td></tr>
+                <tr><td>29/12/2014 :</td><td>Weergave artikelen van Wikipedia aangepast</td></tr>
+                <tr><td>03/12/2014 :</td><td>Persoonlijke resultaten najaar 2014 online</td></tr>
+                <tr><td>09/11/2014 :</td><td>Overzichten ratings en statistieken aantal spelers/verenigingen toegevoegd</td></tr>
+                <tr><td>23/04/2014 :</td><td>Samenvatting persoonlijke resultaten toegevoegd</td></tr>
+                <tr><td>03/04/2014 :</td><td>Overzicht van poules per competitieseizoen toegevoegd</td></tr>
+                <tr><td>18/01/2014 :</td><td>Vernieuwde website staat online</td></tr>
+                <tr><td>18/01/2014 :</td><td>ttkaart.nl bestaat vijf jaar</td></tr>
+                <tr><td></td><td style="text-align:right;">@Html.RouteLink("meer nieuws", "Nieuws")</td></tr>
+            </table>
+        </p>
+        <p>&nbsp;</p>
+    </section>
+}
+        <div class="push"></div>
+    </div>
+
+    <footer id="footer">
+        2009-@DateTime.Now.Year @Html.RouteLink("Arjan Bakker", "Contact")
+        - Volg ttkaart.nl op <a href="https://twitter.com/ttkaart" target="_blank">Twitter</a> / <a href="https://facebook.com/ttkaart" target="_blank">Facebook</a>
+        - Informatie over gebruik <a href="/Cookies">Cookies</a>
+    </footer>
+    
+</body>
+</html>

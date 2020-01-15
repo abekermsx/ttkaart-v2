@@ -1,0 +1,45 @@
+﻿@model ttkaart.ViewModels.WikiListViewModel 
+
+@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Wiki spelers/verenigingen";
+    ViewBag.Description = "Overzicht van alle tafeltennissers en tafeltennisverenigingen die een pagina op Wikipedia hebben.";
+    ViewBag.HasSideBar = true;
+    ViewBag.Robots = "all";
+}
+
+<h1>Wiki</h1>
+
+<table class="data" style="width:280px;float:left;margin-right:20px;">
+    <thead>
+        <tr><th>Spelers</th></tr>
+    </thead>
+    <tbody>
+@foreach (var player in Model.playerWiki)
+{
+    <tr>
+        <td>
+            @Html.RouteLink(player.playerName, "SpelersDetails", new RouteValueDictionary { { "id", player.playerNr }, {"name", player.playerName.ToUrlFriendlyString() }})
+        </td>
+    </tr>
+}
+    </tbody>
+</table>
+
+
+<table class="data" style="width:280px;float:left;">
+    <thead>
+        <tr><th>Verenigingen</th></tr>
+    </thead>
+    <tbody>
+@foreach (var club in Model.clubWiki)
+{
+    <tr>
+        <td>
+            @Html.RouteLink(club.wikiUrl, "VerenigingenDetails", new RouteValueDictionary { { "id", club.id }, {"name", club.wikiUrl.ToUrlFriendlyString() }})
+        </td>
+    </tr>
+}
+    </tbody>
+</table>

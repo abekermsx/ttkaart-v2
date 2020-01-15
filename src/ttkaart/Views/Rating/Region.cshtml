@@ -1,0 +1,215 @@
+﻿@model ttkaart.ViewModels.RegionRatingViewModel
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht ratings " + Model.regionName;
+    ViewBag.Description = "Overzicht ratings " + Model.regionName;
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "all";
+}
+
+<h1>Ratings</h1>
+
+<p>
+    Bekijk informatie over ratings:
+    @Html.RouteLink("Uitleg", "RatingsUitleg")
+    @Html.RouteLink("Afdeling", "RatingsPerRegioStart", null, new { style = "font-weight:bold;" })
+    @Html.RouteLink("Seizoen", "RatingsPerSeizoenStart" )
+</p>
+
+<br />
+
+<h2>Overzicht basisratings per afdeling</h2>
+
+<form action="/Ratings/Regio/" id="RegionSelect" method="get">
+    <span>Selectie:</span>
+    @Html.DropDownList("region", Model.regions, new { @onchange = "loadRegionRatings();" })
+    @Html.DropDownList("category", Model.categories, new { @onchange = "loadRegionRatings();" })
+</form>
+
+<br />
+
+@if (Model.selectedCategory == "Puntentabellen")
+{
+    if (Model.ratingsAdults.Count > 0)
+    {
+        <h3>Overzicht basisratings Senioren</h3>
+        Html.RenderPartial("~/Views/Shared/_RegionRating.cshtml", Model.ratingsAdults);
+        <br />
+    }
+
+    if (Model.ratingsAdultsDuo.Count > 0)
+    {
+        <h3>Overzicht basisratings Senioren Duo</h3>
+        Html.RenderPartial("~/Views/Shared/_RegionRating.cshtml", Model.ratingsAdultsDuo);
+        <br />
+    }
+
+    if (Model.ratingsYouth.Count > 0)
+    {
+        <h3>Overzicht basisratings Junioren</h3>
+        Html.RenderPartial("~/Views/Shared/_RegionRating.cshtml", Model.ratingsYouth);
+        <br />
+    }
+}
+    
+@if (Model.selectedCategory != "Puntentabellen")
+{
+    var ratings = Model.ratings.Select(r => r.rating).Distinct().OrderByDescending(id => id);
+
+    int seasonYear = Model.ratings.Min(s => s.seasonYear);
+    int seasonYearEnd = Model.ratings.Max(s => s.seasonYear);
+
+    <table class="data seasons" cellspacing="0" cellpadding="0">
+        <thead>
+            <tr>
+                <th></th>
+                @{
+    while (seasonYear <= seasonYearEnd)
+    {
+        <th colspan="2" style="text-align:center;">@seasonYear</th>
+
+        seasonYear++;
+    }
+                }
+                <th></th>
+            </tr>
+            <tr>
+                <th class="najaar">Rating</th>
+                @{
+    seasonYear = Model.ratings.Min(s => s.seasonYear);
+
+    while (seasonYear <= seasonYearEnd)
+    {
+        <th class="voorjaar">voorjaar</th>
+                    <th class="najaar">najaar</th>
+
+        seasonYear++;
+    }
+                }
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+    foreach (var rating in ratings)
+    {
+        <tr>
+            <td class="najaar">@rating</td>
+            @{
+
+        seasonYear = Model.ratings.Min(s => s.seasonYear);
+        int seasonPeriod = 1;
+
+        while (seasonYear <= seasonYearEnd)
+        {
+            var classText = "";
+            var classCss = "";
+            var className = (seasonPeriod == 1 ? "voorjaar senioren" : "najaar senioren");
+
+            var seasonRatings = Model.ratings.Where(r => r.seasonYear == seasonYear && r.seasonPeriod == seasonPeriod && r.rating == rating);
+
+            foreach (var seasonRating in seasonRatings)
+            {
+                if (!String.IsNullOrEmpty(classText))
+                {
+                    classCss = " classseperator";
+                }
+
+                if (seasonRating.category == 1 && seasonRating.className.Contains("Duo"))
+                {
+                    classText += ("<div class='duo" + classCss + "'>");
+                }
+                else if (seasonRating.category == 2)
+                {
+                    classText += ("<div class='jeugd" + classCss + "'>");
+                }
+                else
+                {
+                    if (!String.IsNullOrEmpty(classCss))
+                    {
+                        classText += ("<div class='" + classCss + "'>");
+                    }
+                    else
+                    {
+                        classText += "<div>";
+                    }
+                }
+
+                classText += seasonRating.className;
+
+                if (seasonRating.formula == 2)
+                {
+                    classText += "#";
+                }
+
+                if (seasonRating.formula == 3)
+                {
+                    classText += "##";
+                }
+
+                classText += "</div>";
+            }
+
+            if (String.IsNullOrEmpty(classText))
+            {
+                classText = "-";
+            }
+
+            <td class="@className">@Html.Raw(classText)</td>
+
+            if (++seasonPeriod == 3)
+            {
+                seasonYear++;
+                seasonPeriod = 1;
+            }
+
+        }
+            }
+            <td>@rating</td>
+        </tr>
+    }
+            }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Rating</td>
+                @{
+    seasonYear = Model.ratings.Min(s => s.seasonYear);
+
+    while (seasonYear <= seasonYearEnd)
+    {
+        <td class="voorjaar">voorjaar</td>
+                    <td class="najaar">najaar</td>
+
+        seasonYear++;
+    }
+                }
+                <td>Rating</td>
+            </tr>
+            <tr style="background-color:white;">
+                <td></td>
+                @{
+    seasonYear = Model.ratings.Min(s => s.seasonYear);
+
+    while (seasonYear <= seasonYearEnd)
+    {
+        <td colspan="2" style="text-align:center;">@seasonYear</td>
+
+        seasonYear++;
+    }
+                }
+                <td></td>
+            </tr>
+        </tfoot>
+
+    </table>
+
+    <p>
+        <b>Betekenis kleuren:</b>
+        <span style='color:blue;'>Senioren</span> /
+        <span style='color:darkmagenta;'>Senioren Duo</span> /
+        <span style='color:green;'>Junioren</span>
+    </p>
+}
+

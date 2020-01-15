@@ -1,0 +1,112 @@
+﻿@model ttkaart.ViewModels.ClubStatisticsViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Service
+@using ttkaart.Models
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht aantal verenigingen per afdeling per seizoen";
+    ViewBag.Description = "Overzicht aantal verenigingen per afdeling per seizoen";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "all";
+}
+
+<h1>Statistieken</h1>
+
+<p>
+    Bekijk statistieken van:
+    @Html.RouteLink("Spelers", "StatistiekenSpelers")
+    @Html.RouteLink("Junioren", "StatistiekenSpelersJunioren")
+    @Html.RouteLink("Senioren", "StatistiekenSpelersSenioren")
+    @Html.RouteLink("Verenigingen", "StatistiekenVerenigingen", null, new { style = "font-weight:bold;" })
+</p>
+
+<br />
+
+<h2>Overzicht aantal verenigingen per afdeling per seizoen</h2>
+
+<table class="data statistics">
+    <thead>
+        <tr>
+            <th></th>
+            @{
+                int seasonYear = Model.clubsPerSeason[0].seasonYear;
+                int seasonYearEnd = Model.clubsPerSeason[Model.clubsPerSeason.Count - 1].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <th colspan="2" class="season">@seasonYear</th>
+
+                    seasonYear++;
+                }
+            }
+            <th></th>
+        </tr>
+    </thead>
+    @Html.GenerateTableHeader(Model.headings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+        @{
+            foreach (var region in Model.regions)
+            {
+                @:<tr>
+                @:<td>@region</td>
+                
+                seasonYear = Model.clubsPerSeason[0].seasonYear;
+
+                int seasonPeriod = 1;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    var result = Model.clubsPerRegionPerSeason.Where(r => r.regionName == region && r.seasonYear == seasonYear && r.seasonPeriod == seasonPeriod).Sum(s => s.clubCount);
+
+                    string count = (result == 0 ? "-" : result.ToString());
+
+                    var style = (seasonPeriod == 1 ? "voorjaar" : "najaar");
+
+                    @:<td class="@style">@count</td>
+
+
+                    if (++seasonPeriod == 3)
+                    {
+                        seasonPeriod = 1;
+                        seasonYear++;
+                    }
+                }
+
+                @:<td>@region</td>
+                @:</tr>
+            }
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td>Totaal</td>
+            @{
+                seasonYear = Model.clubsPerSeason[0].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    var result = Model.clubsPerSeason.Where(r => r.seasonYear == seasonYear && r.seasonPeriod == 1).Sum(s => s.clubCount);
+
+                    string count = (result == 0 ? "-" : result.ToString());
+
+                    @:<td class="voorjaar">@count</td>
+                    
+                    result = Model.clubsPerSeason.Where(r => r.seasonYear == seasonYear && r.seasonPeriod == 2).Sum(s => s.clubCount);
+
+                    count = (result == 0 ? "-" : result.ToString());
+
+                    @:<td class="najaar">@count</td>
+
+                    seasonYear++;
+                }
+            }
+            <td>Totaal</td>
+        </tr>
+    </tfoot>
+</table>
+
+<p>
+    * Totaal aantal verenigingen kan afwijken van cumulatieven in verband met spelers die tegelijkertijd in meerdere competities spelen
+</p>

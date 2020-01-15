@@ -1,0 +1,133 @@
+﻿@model ttkaart.ViewModels.SeasonRatingViewModel
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht ratings " + Model.seasonName;
+    ViewBag.Description = "Overzicht ratings " + Model.seasonName;
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "all";
+}
+
+<h1>Ratings</h1>
+
+<p>
+    Bekijk informatie over ratings:
+    @Html.RouteLink("Uitleg", "RatingsUitleg")
+    @Html.RouteLink("Afdeling", "RatingsPerRegioStart", new { category = String.Empty } )
+    @Html.RouteLink("Seizoen", "RatingsPerSeizoenStart", null, new { style = "font-weight:bold;" })
+</p>
+
+<br />
+
+<h2>Overzicht basisratings per seizoen</h2>
+
+<form action="/Ratings/Seizoen/" id="SeasonSelect" method="get">
+    <span>Selectie:</span>
+    @Html.DropDownList("season", Model.seasons, new { @onchange = "loadSeasonRatings();" })
+    @Html.DropDownList("category", Model.categories, new { @onchange = "loadSeasonRatings();" })
+</form>
+
+<br />
+
+@{
+    var ratings = Model.ratings.Select(r => r.rating).Distinct().OrderByDescending(id => id);
+    var regions = Model.ratings.Select(r => r.regionName).Distinct().OrderBy(id => id);
+    
+    <table class="data seasons" cellspacing="0" cellpadding="0">
+        <thead>
+            <tr>
+                <th class="najaar">Rating</th>
+
+    @{
+    foreach (var region in regions)
+    {
+        <th class="najaar">@region</th>
+    }
+}
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+
+    @{
+        foreach (var rating in ratings)
+        {
+            <tr>
+                <td class="najaar">@rating</td>
+                @{
+            foreach (var region in regions)
+            {
+                var classText = "";
+
+                var regionRatings = Model.ratings.Where(r => r.regionName == region && r.rating == rating);
+
+                foreach (var regionRating in regionRatings)
+                {
+                    if (!String.IsNullOrEmpty(classText))
+                    {
+                        classText += "<br />";
+                    }
+
+                    if (regionRating.category == 1 && regionRating.className.Contains("Duo") )
+                    {
+                        classText += "<span class='duo'>";
+                    }
+                    
+                    if (regionRating.category == 2)
+                    {
+                        classText += "<span class='jeugd'>";
+                    }
+
+                    classText += regionRating.className;
+
+                    if (regionRating.formula == 2)
+                    {
+                        classText += "#";
+                    }
+
+                    if (regionRating.formula == 3)
+                    {
+                        classText += "##";
+                    }
+
+                    if ( (regionRating.category == 1 && regionRating.className.Contains("Duo") ) || (regionRating.category == 2) )
+                    {
+                        classText += "</span>";
+                    }
+                }
+
+                if (String.IsNullOrEmpty(classText))
+                {
+                    classText = "-";
+                }
+
+                <td class="najaar senioren">@Html.Raw(classText)</td>
+            }
+}
+                <td>@rating</td>
+            </tr>            
+        }
+    }
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="najaar">Rating</td>
+
+                @{
+    foreach (var region in regions)
+    {
+        <td class="najaar">@region</td>
+    }
+}
+                <td>Rating</td>
+            </tr>
+        </tfoot>
+    </table>        
+}
+
+<p>
+    <b>Betekenis kleuren:</b>
+    <span style='color:blue;'>Senioren</span> /
+    <span style='color:darkmagenta;'>Senioren Duo</span> / 
+    <span style='color:green;'>Junioren</span>
+</p>

@@ -1,0 +1,22 @@
+﻿@model List<ttkaart.ViewModels.ClubListViewModel>
+
+@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht verenigingen beginnend met " + ViewBag.c;
+    ViewBag.Description = "Zoek verenigingen op die in het systeem van ttkaart.nl geregistreerd zijn.";
+    ViewBag.HasSideBar = true;
+    ViewBag.Robots = "all";
+}
+
+<h1>Overzicht verenigingen</h1>
+
+<p>
+Overzicht verenigingen beginnend met: @Html.AlphabeticalSelect("VerenigingenOverzicht", (char)ViewBag.c)
+</p>
+
+<br />
+
+<h2>Verenigingen beginnend met @((char)ViewBag.c)</h2>
+
+@{ Html.RenderPartial("~/Views/Shared/_Clubs.cshtml", Model); }

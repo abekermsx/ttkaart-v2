@@ -1,0 +1,78 @@
+﻿@model ttkaart.ViewModels.SearchViewModel 
+
+@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Zoekresultaten '" + Model.SearchTerm + "'";
+    ViewBag.Description = "Zoekresultaten voor ingevoerde bondsnummer, naam speler of vereniging.";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+}
+
+<h1>Zoekresultaten</h1>
+
+<p>Er werd gezocht op: <b>@Model.SearchTerm</b></p>
+<p>&nbsp;</p>
+
+@if (Model.clubs != null && Model.players != null)
+{
+    
+    if (Model.clubs.Count() > 0)
+    {
+        <h2>Gevonden verenigingen</h2>
+        
+        Html.RenderPartial("~/Views/Shared/_Clubs.cshtml", Model.clubs);
+    }
+
+    if (Model.clubs.Count() > 0 && Model.players.players.Count() > 0)
+    {
+        <p>&nbsp;</p>
+    }
+
+    if (Model.players.players.Count() > 0)
+    {
+        RouteValueDictionary routeValues = new RouteValueDictionary();
+        routeValues.Add("SorteerOp", Model.players.sortField);
+        routeValues.Add("Richting", Model.players.sortDir);
+        routeValues.Add("Text", Model.SearchTerm);
+        
+        <h2>Gevonden spelers</h2>
+    
+        if (Model.players.players.Count > 100)
+        {
+            <p>@Html.NumericalSelect(this.ViewContext.RouteData.Route.Name(), (Model.players.players.Count + 99) / 100, Model.players.page, routeValues)</p>
+        }
+
+        Html.RenderPartial("~/Views/Shared/_Players.cshtml", Model.players);
+        
+        if (Model.players.players.Count > 100)
+        {
+            <p>@Html.NumericalSelect(this.ViewContext.RouteData.Route.Name(), (Model.players.players.Count + 99) / 100, Model.players.page, routeValues)</p>
+        }
+    }
+
+    if (Model.players.players.Count() == 0 && Model.clubs.Count() == 0)
+    {
+        <p>Geen gegevens gevonden.</p>
+    
+        if (Model.IsBondsnummer && !Model.IsValidBondsnummer)
+        {
+            var nr = Model.SearchTerm.PadLeft(7, '0');
+            var a = nr[0] - 48;
+            var b = nr[1] - 48;
+            var c = nr[2] - 48;
+            var d = nr[3] - 48;
+            var e = nr[4] - 48;
+            var f = nr[5] - 48;
+            var g = nr[6] - 48;
+
+            var rest = (1000 - 7 * a - 6 * b - 5 * c - 4 * d - 3 * e - 2 * f) % 10;
+            
+            <p>Dit is een ongeldig bondsnummer.</p>
+    
+            <p>(1000 - 7 * <b>@a</b> - 6 * <b>@b</b> - 5 * <b>@c</b> - 4 * <b>@d</b> - 3 * <b>@e</b> - 2 * <b>@f</b>) mod 10 = <b>@rest</b></p>
+            <p>@rest is ongelijk aan <b>@g</b> (het laatste getal van het ingevoerde bondsnummer).</p>
+        }
+    }
+    
+}

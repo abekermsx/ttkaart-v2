@@ -1,0 +1,178 @@
+﻿@model ttkaart.ViewModels.ClubPlayerHistoryViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+
+<table class="data history">
+    <thead>
+        <tr>
+            <th colspan="3"></th>
+            @{
+                int seasonYear = Model.seasons[Model.seasons.Count() - 1].seasonYear;
+                int seasonYearEnd = Model.seasons[0].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <th colspan="2" class="header">@seasonYear</th>
+
+                    seasonYear++;
+                }
+            }
+        </tr>
+    </thead>
+    @Html.GenerateTableHeader(Model.headings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+        @{
+            string sortField = Request.QueryString["SorteerOp"];
+            string sortDir = Request.QueryString["Richting"];
+
+            int sortPeriod = -1;
+            int sortYear = -1;
+            bool doSort = false;
+
+            if (!String.IsNullOrEmpty(sortField))
+            {
+                if (String.IsNullOrEmpty(sortDir))
+                {
+                    sortDir = "Oplopend";
+                }
+
+                if (sortField.StartsWith("vj"))
+                {
+                    sortPeriod = 1;
+                    sortYear = Convert.ToInt32(sortField.Substring(2));
+                    doSort = true;
+                }
+
+                if (sortField.StartsWith("nj"))
+                {
+                    sortPeriod = 2;
+                    sortYear = Convert.ToInt32(sortField.Substring(2));
+                    doSort = true;
+                }
+            }
+
+            int loops = (doSort ? 2 : 1);
+
+            for (int i = 0; i < loops; i++)
+            {
+                foreach (var result in Model.players)
+                {
+                    if (doSort)
+                    {
+                        int count = result.seasons.Count(s => s.seasonYear == sortYear && s.seasonPeriod == sortPeriod);
+
+                        if ((i == 0 && sortDir.Equals("Oplopend") && count == 0) ||
+                             (i == 0 && sortDir.Equals("Aflopend") && count != 0) ||
+                             (i == 1 && sortDir.Equals("Oplopend") && count != 0) ||
+                             (i == 1 && sortDir.Equals("Aflopend") && count == 0))
+                        {
+                            continue;
+                        }
+                    }
+
+                    string playerName = result.playerName.ToUrlFriendlyString();
+                    RouteValueDictionary routeValues = new RouteValueDictionary { { "id", result.playerNumber }, { "name", playerName } };
+
+                    @:<tr>
+                    @:<td>@Html.RouteLink(result.playerNumber, "SpelersDetails", routeValues)</td>
+                    @:<td>@Html.RouteLink(result.playerName, "SpelersDetails", routeValues)</td>
+                    @:<td>@result.seasons.Count()</td>
+                    
+                    seasonYear = Model.seasons[Model.seasons.Count - 1].seasonYear;
+                    int seasonPeriod = 1;
+                    bool hasPreviousSeason = false;
+                    int columns = 0;
+                    
+                    while (seasonYear <= seasonYearEnd)
+                    {
+                        bool hasCurrentSeason = (result.seasons.Count(s => s.seasonPeriod == seasonPeriod && s.seasonYear == seasonYear) > 0);
+                        
+                        seasonPeriod++;
+                        if (seasonPeriod == 3)
+                        {
+                            seasonPeriod = 1;
+                            seasonYear++;
+                        }
+                        
+                        if ( !hasCurrentSeason )
+                        {
+                            columns++;
+                        }
+                        else
+                        {
+                            if ( hasPreviousSeason == false )
+                            {
+                                if (columns != 0)
+                                {
+                                    if (columns == 1)
+                                    {
+                                        @:<td></td>
+                                    }   
+                                    else
+                                    {
+                                        @:<td colspan="@columns"></td>
+                                    }
+
+                                    columns = 0;
+                                }
+
+                                hasPreviousSeason = true;
+                            }
+                            
+                            columns++;
+
+                            if (result.seasons.Count(s => s.seasonPeriod == seasonPeriod && s.seasonYear == seasonYear) == 0)
+                            {
+                                if (columns == 1)
+                                {
+                                    @:<td class="playing"></td>
+                                }
+                                else
+                                {
+                                    @:<td colspan="@(columns)" class="playing"></td>
+                                }
+
+                                columns = 0;
+                                hasPreviousSeason = false;
+                            }
+                        }
+
+                    }
+
+                    if (columns != 0)
+                    {
+                        if (columns == 1)
+                        {
+                            @:<td></td>
+                        }   
+                        else
+                        {
+                            @:<td colspan="@columns"></td>
+                        }
+
+                    }
+                    
+                    @:</tr>
+                }
+            }
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3"></td>
+            @{
+                seasonYear = Model.seasons[Model.seasons.Count() - 1].seasonYear;
+                seasonYearEnd = Model.seasons[0].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <td class="footer">@Model.players.Count(p => p.seasons.Count(s => s.seasonYear == seasonYear && s.seasonPeriod == 1) != 0)</td>
+                    <td class="footer">@Model.players.Count(p => p.seasons.Count(s => s.seasonYear == seasonYear && s.seasonPeriod == 2) != 0)</td>
+
+                    seasonYear++;
+                }
+            }
+        </tr>
+    </tfoot>
+</table>

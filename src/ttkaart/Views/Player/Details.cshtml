@@ -1,0 +1,290 @@
+﻿@model ttkaart.ViewModels.PlayerDetailsViewModel
+
+@using ttkaart.Service
+@using ttkaart.Helpers
+@using ttkaart.Models
+@using ttkaart.ViewModels
+
+@{
+    ViewBag.Title = "TTKAART.NL - Resultaten " + Model.details.playerName + " - " + Model.details.playerNumber;
+    ViewBag.Description = "Alle resultaten van " + Model.details.playerName + " in een handig overzicht. Bekijk het verloop van resultaten, percentages, ratings en licenties.";
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "none";
+}
+
+@if (Model.results.Count() > 0)
+{
+    
+    List<ResultListViewModel> distinctClubs = Model.results.GroupBy(c => c.clubName)
+                                                           .Select(g => g.First())
+                                                           .ToList();
+    
+<h1>Gegevens @Model.details.playerName</h1>
+<table>
+    <tr>
+        <td><b>Naam:</b></td>
+        <td>@Model.details.playerName</td>
+    </tr>
+    <tr>
+        <td><b>Bondsnummer:</b></td>
+        <td>@Model.results[0].playerNr</td>
+    </tr>
+    <tr>
+        <td><b>@(distinctClubs.Count() == 1 ? "Vereniging:" : "Verenigingen:")</b></td>
+        <td>
+@{
+    bool first = true;
+    foreach (var club in distinctClubs)
+    {
+        if ( first == false)
+        {
+@:,
+        }
+        first = false;
+
+        @Html.RouteLink(club.clubName, "VerenigingenDetails", new RouteValueDictionary { { "id", club.clubId }, { "name", club.clubName.ToUrlFriendlyString() } })        
+    }
+}
+
+        </td>
+    </tr>
+    <tr>
+        <td><b>Eerste vermelding:</b></td>
+        <td>
+            @Model.results.OrderBy(s => s.seasonYear).ThenBy(s => s.seasonPeriod).First().seasonYear
+            @(Model.results.OrderBy(s => s.seasonYear).ThenBy(s => s.seasonPeriod).First().seasonPeriod == 1 ? "(voorjaar)" : "(najaar)")
+        </td>
+    </tr>
+    <tr>
+        <td><b>Laatste vermelding:</b></td>
+        <td>
+            @Model.results.OrderByDescending(s => s.seasonYear).ThenByDescending(s => s.seasonPeriod).First().seasonYear
+            @(Model.results.OrderByDescending(s => s.seasonYear).ThenByDescending(s => s.seasonPeriod).First().seasonPeriod == 1 ? "(voorjaar)" : "(najaar)")
+        </td>
+    </tr>
+    <tr>
+        <td><b>Aantal seizoenen:</b></td>
+        <td>@Model.results.Select(s => s.seasonId).Distinct().Count()</td>
+    </tr>
+
+    @if (!String.IsNullOrEmpty(Model.details.category))
+    {
+        <tr>
+            <td><b>Leeftijdscategorie:</b></td>
+            <td>@((Model.details.category.FirstCharToUpper()+"en").Replace("Kadeten", "Kadetten").Replace("Pupilen", "Pupillen"))</td>
+        </tr>
+    }
+    
+    @if (!String.IsNullOrEmpty(Model.details.licenseSeniorCurrent))
+    {
+        <tr>
+            <td><b>Licentie senioren:</b></td>
+            <td>@Model.details.licenseSeniorCurrent</td>
+        </tr>
+    }
+
+    @if (!String.IsNullOrEmpty(Model.details.licenseSeniorPrevious))
+    {
+        <tr>
+            <td><b>Historie licenties senioren:</b></td>
+            <td>@Model.details.licenseSeniorPrevious</td>
+        </tr>
+    }
+    
+    @if (!String.IsNullOrEmpty(Model.details.licenseYouthCurrent))
+    {
+        <tr>
+            <td><b>Licentie junioren:</b></td>
+            <td>@Model.details.licenseYouthCurrent</td>
+        </tr>
+    }
+
+    @if (!String.IsNullOrEmpty(Model.details.licenseYouthPrevious))
+    { 
+        <tr>
+            <td><b>Historie licenties junioren:</b></td>
+            <td>@Model.details.licenseYouthPrevious</td>
+        </tr>
+    }
+    <tr>
+        <td><b>NTTB Elo Ranglijst:</b></td>
+        <td><a href="http://www.nttb-ranglijsten.nl/results.php?b=@Model.results[0].playerNr" target="_blank">bekijk resultaten op nttb-ranglijsten.nl</a></td>
+    </tr>
+
+</table>
+<p>&nbsp;</p>
+}
+
+@if (Model.results.Count() > 0)
+{
+<h1>Samenvatting resultaten @Model.details.playerName</h1>
+<table class="data">
+    <thead>
+        <tr>
+            <th>Categorie</th>
+            <th>Gespeeld</th>
+            <th>Gewonnen</th>
+            <th>Percentage</th>
+            <th>Hoogste rating</th>
+        </tr>
+    </thead>
+    <tbody>
+    @Html.ResultSummary("Senioren", Model.results.Where(c => c.pouleCategory == 1).Where(r => r.regionId != 6))
+    @Html.ResultSummary("Dames", Model.results.Where(c => c.pouleCategory == 1).Where(r => r.regionId == 6))
+    @Html.ResultSummary("Junioren", Model.results.Where(c => c.pouleCategory == 2).Where(r => r.regionId != 8))
+    @Html.ResultSummary("Meisjes", Model.results.Where(c => c.pouleCategory == 2).Where(r => r.regionId == 8))
+    </tbody>
+    @Html.ResultSummary("Totaal", Model.results)
+</table>
+<p>&nbsp;</p>
+}
+
+@if (Model.results.Count() > 0)
+{
+<h1>Resultaten @Model.details.playerName</h1>
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.PlayerResultHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var result in Model.results)
+    {
+        @:<tr>
+        <td>
+            @Html.RouteLink(result.clubName + " " + result.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", result.teamId }, { "name", (result.clubName + " " + result.teamNumber).ToUrlFriendlyString() } })
+        </td>
+    
+        <td>@result.seasonYear @(result.seasonPeriod == 1 ? "(voorjaar)" : "(najaar)")</td>
+        <td>@(result.pouleCategory == 1 ? "Senioren" : "Junioren")</td>
+        <td>@result.regionName</td>
+
+        <td>    
+            @Html.RouteLink((result.className + " - " + result.pouleName).Trim(new char[] { ' ', '-' }),
+                            "PouleDetails",
+                            new RouteValueDictionary { { "id", result.pouleId }, { "name", (result.className + " - " + result.pouleName).ToUrlFriendlyString() } })
+        </td>
+    
+        <td>@result.setsPlayed</td>
+        <td>@result.setsWon</td>
+        <td>@result.percentage</td>
+        <td>@(result.rating == -9999 ? "-" : result.baseRating.ToString())</td>
+        <td>@(result.rating == -9999 ? "-" : result.rating.ToString())</td>
+        <td>@result.license</td>
+    /*
+        <td class="tournament" style="display:none;"><input type="button" value="+" onclick="addPlayer('@Model.details.playerName','@result.clubName',@(result.rating==-9999 ? 0 : @result.rating));this.style['display']='none';" /></td>
+   */
+        @:</tr>
+    }
+}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5"></td>
+            <td>@Model.results.Sum(t => t.setsPlayed)</td>
+            <td>@Model.results.Sum(t => t.setsWon)</td>
+            <td>@(Model.results.Sum(t => t.setsWon) * 100 / Model.results.Sum(t => t.setsPlayed))</td>
+            <td colspan="3"></td>
+        </tr>
+    </tfoot>
+</table>
+
+<p>
+* ratings van voorjaar 2006 en eerder zijn gebaseerd op de basisratings van najaar 2006<br />
+** rating op basis competitieresultaat<br />
+*** licentie op basis van seizoensrating (kan afwijken van daadwerkelijke licentie)<br />
+</p>
+<p>&nbsp;</p>
+}
+
+
+@if (Model.results.Count() > 0)
+{
+<h1>Progressie @Model.details.playerName</h1>
+@Html.Chart(Model.playerChart)
+
+<p>
+    <b>Betekenis kleuren:</b> 
+    <span style='color:blue;'>Senioren</span> / 
+    <span style='color:magenta;'>Dames</span> / 
+    <span style='color:green;'>Junioren</span> / 
+    <span style='color:red;'>Meisjes</span> /
+    <span>Prognose volgend seizoen</span>
+</p>
+<p>&nbsp;</p>
+}
+
+
+@if (Model.details.wiki.wikiActive)
+{
+    Html.RenderPartial("_Wiki", Model.details.wiki);
+<p>&nbsp;</p>
+}
+
+
+@if (Model.results.Count() > 0)
+{
+<h1>Teams</h1>
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.PlayerTeamHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var result in Model.teams)
+    {
+        @:<tr>
+        <td>
+            @Html.RouteLink(result.clubName + " " + result.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", result.teamId }, { "name", (result.clubName + " " + result.teamNumber).ToUrlFriendlyString() } })
+        </td>    
+    
+        <td>@result.seasonYear @(result.seasonPeriod == 1 ? "(voorjaar)" : "(najaar)")</td>
+        <td>@(result.averageRating == -9999 ? "-" : result.averageRating.ToString())</td>
+        @:<td>
+        bool first = true;
+        foreach (var member in result.teamMembers)
+        {
+            if (!first)
+            {
+@:,
+            }
+            first = false;
+            @Html.RouteLink(member.playerName, "SpelersDetails", new RouteValueDictionary { { "id", member.playerNumber }, { "name", member.playerName.ToUrlFriendlyString() } })
+            @(member.rating == -9999 ? "" : " ("+member.rating+")")
+        }
+        @:</td>
+        @:</tr>
+    }    
+}
+    </tbody>
+</table>
+<p>
+* Teamrating op basis van gewogen gemiddelde rating spelers in team
+</p>
+<p>&nbsp;</p>
+}
+
+
+
+@if (Model.results.Count() > 0)
+{
+<h1>Teamratings</h1>
+@Html.Chart(Model.teamChart)
+
+<p>
+    <b>Betekenis kleuren:</b>
+    <span style='color:blue;'>Senioren</span> / 
+    <span style='color:magenta;'>Dames</span> / 
+    <span style='color:green;'>Junioren</span> / 
+    <span style='color:red;'>Meisjes</span>
+</p>
+<p>&nbsp;</p>
+}
+
+
+@if (Model.teamMemberHistory != null && Model.teamMemberHistory.players.Count() > 0)
+{
+<h1>Teamgenoten</h1>    
+
+@Html.Partial("~/Views/Shared/_PlayersHistory.cshtml", Model.teamMemberHistory);
+}

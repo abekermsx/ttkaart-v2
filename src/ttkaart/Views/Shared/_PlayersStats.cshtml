@@ -1,0 +1,92 @@
+﻿@model ttkaart.ViewModels.PlayerStatisticsViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+
+<table class="data statistics">
+    <thead>
+        <tr>
+            <th><div style="width:140px;">&nbsp;</div></th>
+            @{
+                int seasonYear = Model.playersPerSeason[0].seasonYear;
+                int seasonYearEnd = Model.playersPerSeason[Model.playersPerSeason.Count - 1].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <th colspan="2" class="season">@seasonYear</th>
+
+                    seasonYear++;
+                }
+            }
+            <th><div style="width:140px;">&nbsp;</div></th>
+        </tr>
+    </thead>
+    @Html.GenerateTableHeader(Model.headings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+        @{
+            foreach (var region in Model.regions)
+            {
+                @:<tr>
+                    @:<td>@region</td>
+
+
+                seasonYear = Model.playersPerSeason[0].seasonYear;
+
+                int seasonPeriod = 1;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    var result = Model.playersPerRegionPerSeason.Where(r => r.regionName == region && r.seasonYear == seasonYear && r.seasonPeriod == seasonPeriod).Sum(s => s.playerCount);
+
+                    string count = (result == 0 ? "-" : result.ToString());
+
+                    var style = (seasonPeriod == 1 ? "voorjaar" : "najaar");
+
+                    @:<td class="@style">@count</td>
+
+
+                    if (++seasonPeriod == 3)
+                    {
+                        seasonPeriod = 1;
+                        seasonYear++;
+                    }
+                }
+
+                @:<td>@region</td>
+                @:</tr>
+            }
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td>Totaal</td>
+            @{
+                seasonYear = Model.playersPerSeason[0].seasonYear;
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    var result = Model.playersPerSeason.Where(r => r.seasonYear == seasonYear && r.seasonPeriod == 1).Sum(s => s.playerCount);
+
+                    string count = (result == 0 ? "-" : result.ToString());
+
+                    @:<td class="voorjaar">@count</td>
+                    
+                    result = Model.playersPerSeason.Where(r => r.seasonYear == seasonYear && r.seasonPeriod == 2).Sum(s => s.playerCount);
+
+                    count = (result == 0 ? "-" : result.ToString());
+
+                    @:<td class="najaar">@count</td>
+
+
+                    seasonYear++;
+                }
+            }
+            <td>Totaal</td>
+        </tr>
+    </tfoot>
+</table>
+
+<p>
+    * Totaal aantal spelers kan afwijken van cumulatieven in verband met spelers die tegelijkertijd in meerdere competities spelen
+</p>

@@ -1,0 +1,154 @@
+﻿@model ttkaart.ViewModels.ClubViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+
+@{
+    ViewBag.Title = "TTKAART.NL - Statistieken van " + @Model.clubName;
+    ViewBag.Description = "Overzicht van alle seizoenen waarin spelers van de club " + @Model.clubName + " deelgenomen hebben aan de tafeltenniscompetitie.";
+    ViewBag.Robots = "nofollow";
+    
+    if (Model.wiki.wikiActive == false)
+        ViewBag.HasSideBar = true;
+    else
+        ViewBag.HasSideBar = false;
+}
+
+<h1>Gegevens @Model.clubName</h1>
+
+<table>
+    <tr>
+        <td><b>Vereniging:</b></td>
+        <td>@Model.clubName</td>
+    </tr>
+
+@if (!String.IsNullOrEmpty(Model.website) && Model.website.StartsWith("http") )
+{
+    <tr>
+        <td><b>Website:</b></td>
+        <td>
+@if (!String.IsNullOrEmpty(Model.favicon))
+{           
+            <a href="@Model.website" target="_blank" title="Website van @Model.clubName"><img src="~/Content/images/favicon/@Model.favicon" width="16px" height="16px" style="vertical-align:middle;" /></a>
+}
+            <a href="@Model.website" target="_blank" title="Website van @Model.clubName">@Model.website</a>
+        </td>
+    </tr>     
+}
+
+@if (!String.IsNullOrEmpty(Model.twitter))
+{
+    <tr>
+        <td><b>Twitter:</b></td>
+        <td>
+            <a href="@Model.twitter" target="_blank" title="Twitteraccount van @Model.clubName"><img src="~/Content/images/icon_twitter.png" alt="Twitteraccount van @Model.clubName" style="vertical-align:middle;" /></a>
+            <a href="@Model.twitter" target="_blank" title="Twitteraccount van @Model.clubName">@@@Model.twitter.Replace("https://twitter.com/","").Replace("/","")</a>
+        </td>
+    </tr>
+}
+
+@if (!String.IsNullOrEmpty(Model.facebook))
+{
+    <tr>
+        <td><b>Facebook:</b></td>
+        <td>
+            <a href="@Model.facebook" target="_blank" title="Facebookpagina van @Model.clubName"><img src="~/Content/images/icon_facebook.png" alt="Facebookpagina van @Model.clubName" style="vertical-align:middle;" /></a>
+            <a href="@Model.facebook" target="_blank" title="Facebookpagina van @Model.clubName">@Model.facebook</a>
+        </td>
+    </tr>
+}
+
+@if (Model.wiki.wikiActive)
+{
+    <tr>
+        <td><b>Wikipedia:</b></td>
+        <td>
+            <a href="http://nl.wikipedia.org/wiki/@Model.wiki.wikiUrl" target="_blank" title="Wikipediapagina @Model.clubName"><img src="~/Content/images/icon_wikipedia.png" alt="Wikipediapagina van @Model.clubName" style="vertical-align:middle;" /></a>
+            <a href="http://nl.wikipedia.org/wiki/@Model.wiki.wikiUrl" target="_blank" title="Wikipediapagina @Model.clubName">nl.wikipedia.org/wiki/@Model.wiki.wikiUrl</a>
+        </td>        
+    </tr>
+}
+
+@if (Model.seasons.Count > 0)
+{ 
+    <tr>
+        <td><b>Eerst vermelding:</b></td>
+        <td>@((Model.seasons[Model.seasons.Count - 1].seasonPeriod == 1 ? "Voorjaar" : "Najaar") + " " + Model.seasons[Model.seasons.Count - 1].seasonYear)</td>
+    </tr>
+    <tr>
+        <td><b>Laatste vermelding:</b></td>
+        <td>@((Model.seasons[0].seasonPeriod == 1 ? "Voorjaar" : "Najaar") + " " + Model.seasons[0].seasonYear)</td>
+    </tr>
+    <tr>
+        <td><b>Aantal seizoenen:</b></td>
+        <td>@Model.seasons.Count</td>
+    </tr>
+    <tr>
+        <td><b>Totaal aantal spelers:</b></td>
+        <td>
+            @Model.playerCount
+            @{
+                @Html.RouteLink("(overzicht)", "VerenigingenHistorie", new RouteValueDictionary { { "id", Model.id }, { "clubName", Model.clubName.ToUrlFriendlyString() } });
+            }
+        </td>
+    </tr>
+}
+</table>
+
+@if (Model.clubNames.Count > 1)
+{
+    <p>(Heeft gespeeld onder de namen
+    @for (int i = 0; i < Model.clubNames.Count; i++)
+    {
+        @Model.clubNames[i]
+
+        if (i < (Model.clubNames.Count - 2))
+        {
+@:,
+        }
+        else if (i < (Model.clubNames.Count - 1))
+        {
+ @:en
+        }
+    }
+)</p>
+}
+else
+{ 
+<p>&nbsp;</p>
+}
+
+@if (Model.seasons.Count > 0)
+{
+<h1>Overzicht seizoenen @Model.clubName</h1>
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.ClubSeasonHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    string clubName = Model.clubName.ToUrlFriendlyString();
+    
+    foreach (var season in @Model.seasons)
+    {
+        RouteValueDictionary routeValues = new RouteValueDictionary
+                                { { "id", season.clubId },
+                                    { "season", season.seasonId },
+                                    { "clubName", clubName },
+                                    { "seasonName", ((season.seasonPeriod == 1 ? "Voorjaar" : "Najaar") + " " + season.seasonYear).ToUrlFriendlyString()}
+                                };
+        @:<tr>
+            <td>@(season.seasonYear + " " + (season.seasonPeriod == 1 ? "Voorjaar" : "Najaar"))</td>
+            <td>@Html.RouteLink(season.teams + " teams", "VerenigingenTeams", routeValues)</td>
+            <td>@Html.RouteLink(season.players + " spelers", "VerenigingenSpelers", routeValues)</td>
+            <td>@String.Join(", ", season.clubNames)</td>    
+        @:</tr>
+    }
+}
+    </tbody>
+</table>
+}
+
+@if (Model.wiki.wikiActive)
+{
+    <p>&nbsp;</p>
+    Html.RenderPartial("_Wiki", Model.wiki);
+}

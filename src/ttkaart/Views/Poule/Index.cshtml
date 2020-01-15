@@ -1,0 +1,65 @@
+﻿@model ttkaart.ViewModels.PoulesViewModel
+
+@using ttkaart.Helpers
+@using ttkaart.Models
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht competities " + Model.name;
+    ViewBag.Description = "Overzicht competities " + Model.name;
+    ViewBag.HasSideBar = false;
+    ViewBag.Robots = "nofollow";
+}
+
+<h1>Overzicht competities</h1>
+
+@using (Html.BeginForm("", "Competities", FormMethod.Get, new { @id = "PouleSelect" }))
+{       
+    <span>Selectie:</span> 
+    @Html.DropDownList("season", Model.seasons, new { @onchange = "loadCompetition();" } )    
+    @Html.DropDownList("category", Model.categories, new { @onchange = "loadCompetition();" })
+    @Html.DropDownList("region", Model.regions, new { @onchange = "loadCompetition();" })
+}
+
+
+@if (Model.poules.Count() > 0)
+{        
+<br />
+<h1>Competities in @Model.name</h1>
+<table class="data">
+    @Html.GenerateTableHeader(TableModels.CompetitionHeadings, Request.QueryString["SorteerOp"], Request.QueryString["Richting"])
+    <tbody>
+@{
+    foreach (var poule in Model.poules)
+    {
+        @:<tr>        
+            <td>
+                @Html.RouteLink((poule.className + " - " + poule.pouleName).Trim(new char[] { ' ', '-' }),
+                                "PouleDetails",
+                               new RouteValueDictionary { { "id", poule.id }, { "name", (poule.className + " - " + poule.pouleName).ToUrlFriendlyString() } })            
+            </td>
+            <td>@(poule.strength == -9999 ? "-" : poule.strength.ToString())</td>
+            <td>
+                @{
+        bool first = true;
+        foreach (var team in poule.teams)
+        {
+            if (!first)
+            {
+@:,
+                        }
+            first = false;
+                        @Html.RouteLink(team.clubName + " " + team.teamNumber,
+                            "TeamDetails",
+                            new RouteValueDictionary { { "id", team.teamId }, { "name", (team.clubName + " " + team.teamNumber).ToUrlFriendlyString() } })
+        }
+                }    
+            </td>
+        @:</tr>   
+    }
+}    
+    </tbody>
+</table>
+<p>
+* Sterkte is gebaseerd op de resultaten die de spelers uit een poule in de twee voorgaande seizoenen (in dezelfde afdeling) hebben behaald
+</p>
+}

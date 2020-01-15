@@ -1,0 +1,93 @@
+﻿@model List<ttkaart.ViewModels.RatingViewModel>
+
+<table class="data statistics">
+    <thead>
+        <tr>
+            <th></th>
+            @{
+                int seasonYear = Model.Min(r => r.seasonYear);
+                int seasonYearEnd = Model.Max(r => r.seasonYear);
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <th colspan="2" class="season">@seasonYear</th>
+
+                    seasonYear++;
+                }
+            }
+            <th></th>
+        </tr>
+    </thead>
+
+    <thead>
+        <tr>
+            <th>Klasse</th>
+            @{
+                seasonYear = Model.Min(r => r.seasonYear);
+                seasonYearEnd = Model.Max(r => r.seasonYear);
+
+                while (seasonYear <= seasonYearEnd)
+                {
+                    <th class="voorjaar">vj</th>
+                    <th class="najaar">nj</th>
+
+                    seasonYear++;
+                }
+            }
+
+            <th>Klasse</th>
+        </tr>
+    </thead>
+    <tbody>
+    @{
+        var items = Model.OrderBy(l => l.classLevel).Select(n => n.className).Distinct();
+
+        foreach (var className in items)
+        {
+            @:<tr>
+            @:<td>@className</td>
+            
+            seasonYear = Model.Min(r => r.seasonYear);
+            seasonYearEnd = Model.Max(r => r.seasonYear);
+
+            while (seasonYear <= seasonYearEnd)
+            {
+                var rating = Model.SingleOrDefault(r => r.seasonYear == seasonYear && r.seasonPeriod == 1 && r.className == className);
+                var ratingText = (rating == null ? "-" : rating.rating.ToString());
+
+                if (rating != null && rating.formula == 2)
+                {
+                    ratingText += "#";
+                }
+
+                if (rating != null && rating.formula == 3)
+                {
+                    ratingText += "##";
+                }
+                
+                @:<td class="voorjaar">@ratingText</td>
+
+                rating = Model.SingleOrDefault(r => r.seasonYear == seasonYear && r.seasonPeriod == 2 && r.className == className);
+                ratingText = (rating == null ? "-" : rating.rating.ToString());
+
+                if (rating != null && rating.formula == 2)
+                {
+                    ratingText += "#";
+                }
+
+                if (rating != null && rating.formula == 3)
+                {
+                    ratingText += "##";
+                }
+                @:<td class="najaar">@ratingText</td>
+                
+                seasonYear++;
+            }
+
+            @:<td>@className</td>
+            @:</tr>
+        }
+    }
+    </tbody>
+</table>
+

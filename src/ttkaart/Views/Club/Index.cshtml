@@ -1,0 +1,13 @@
+﻿@using ttkaart.Helpers
+
+@{
+    ViewBag.Title = "TTKAART.NL - Overzicht verenigingen";
+    ViewBag.Description = "Zoek verenigingen op die in het systeem van ttkaart.nl geregistreerd zijn.";
+    ViewBag.HasSideBar = true;
+    ViewBag.Robots = "all";
+}
+
+<h1>Overzicht verenigingen</h1>
+<p>
+Overzicht verenigingen beginnend met: @Html.AlphabeticalSelect("VerenigingenOverzicht", ' ')
+</p>

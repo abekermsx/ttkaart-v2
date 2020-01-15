@@ -1,0 +1,107 @@
+﻿@{
+    ViewBag.Title = "TTKAART.NL - Uitleg berekening ratings";
+    ViewBag.Description = "Uitleg berekening ratings";
+    ViewBag.HasSideBar = true;
+    ViewBag.Robots = "all";
+}
+
+
+<h1>Ratings</h1>
+
+<p>
+    Bekijk informatie over ratings:    
+    @Html.RouteLink("Uitleg", "RatingsUitleg", null, new { style = "font-weight:bold;" })
+    @Html.RouteLink("Afdeling", "RatingsPerRegioStart")
+    @Html.RouteLink("Seizoen", "RatingsPerSeizoenStart")
+</p>
+
+<br />
+
+<h2>Uitleg berekening rating</h2>
+<p>
+    De rating van een speler wordt bepaald door de basisrating die de speler krijgt op basis van de afdeling / klasse waarin werd gespeeld
+    en het behaalde winstpercentage. Door gebruik te maken van een van onderstaande formule's kan de uiteindelijke rating worden bepaald.
+    In de meeste gevallen wordt de standaard berekening gehanteerd. 
+    In de tabellen op de pagina's @Html.RouteLink("Afdeling", "RatingsPerRegioStart") en @Html.RouteLink("Seizoen", "RatingsPerSeizoenStart") wordt middels
+    de kenmerken # en ## aangegeven wanneer een afwijkende berekening wordt gehanteerd.
+</p>
+<p>
+    <i>Voorbeeld:</i><br />
+    Speler heeft in voorjaar 2014 in de 3e Divisie Heren een winstpercentage van 70% behaald. De basisrating voor de 3e Divisie Heren in voorjaar 2014 is 425.
+    De standaard berekening wordt hier gehanteerd. Het winstpercentage valt in de groep van 25%-75%. De uiteindelijke rating is dan: 425 + 70 + 25 = 520.
+</p>
+<p>
+    <i>Extra punten:</i><br />
+    Door het behalen van bepaalde resultaten op meerkampen en toernooien kunnen extra punten worden verdient die bij de rating worden opgeteld.
+    Bij de ratings die worden weergegeven op deze site worden die eventueel behaalde extra punten niet meegerekend.
+</p>
+
+<h3>Standaard rating berekening</h3>
+<table class="data" style="width:450px">
+    <thead>
+        <tr>
+            <th style="width:100px">Percentage</th>
+            <th>Formule</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>0% - 25%</td>
+            <td>rating = basisrating + 2 * percentage</td>
+        </tr>
+        <tr>
+            <td>25% - 75%</td>
+            <td>rating = basisrating + percentage + 25</td>
+        </tr>
+        <tr>
+            <td>75% - 100%</td>
+            <td>rating = basisrating + 2 * percentage - 50</td>
+        </tr>
+    </tbody>
+</table>
+<br />
+
+<h3>Berekening rating bij basisratings gekenmerkt met #</h3>
+<table class="data" style="width:450px">
+    <thead>
+        <tr>
+            <th style="width:100px">Percentage</th>
+            <th>Formule</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>0% - 100%</td>
+            <td>rating = basisrating + 2 * percentage</td>
+        </tr>
+    </tbody>
+</table>
+<br />
+
+<h3>Berekening rating bij basisratings gekenmerkt met ##</h3>
+<table class="data" style="width:450px">
+    <thead>
+        <tr>
+            <th style="width:100px">Percentage</th>
+            <th>Formule</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>0% - 50%</td>
+            <td>rating = basisrating + percentage</td>
+        </tr>
+        <tr>
+            <td>50% - 75%</td>
+            <td>rating = basisrating + 2 * percentage - 50</td>
+        </tr>
+        <tr>
+            <td>75% - 100%</td>
+            <td>rating = basisrating + 4 * percentage - 200</td>
+        </tr>
+    </tbody>
+</table>
+<br />
+
+<h3>Verloop ratings</h3>
+<img src="~/Content/images/rating_chart.png" alt="Verloop ratings"/>
